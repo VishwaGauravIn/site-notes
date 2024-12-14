@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "SiteNotes - Your Ultimate Browsing Companion",
+  "version": "2.0",
+  "description": "Take and save notes for any website in a beautiful sidebar",
+  "permissions": ["sidePanel", "storage", "tabs"],
+  "action": {},
+  "icons": {
+    "16": "icon16.png",
+    "32": "icon32.png",
+    "48": "icon192.png",
+    "128": "icon192.png"
+  },
+  "side_panel": {
+    "default_path": "sidepanel.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  }
+}

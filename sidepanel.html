@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>SiteNotes</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary-color: #2563eb;
+        --danger-color: #dc2626;
+        --bg-color: #ffffff;
+        --text-color: #1f2937;
+        --border-color: #e5e7eb;
+        --secondary-bg: #f3f4f6;
+      }
+
+      body {
+        font-family: "Inter", -apple-system, system-ui, sans-serif;
+        margin: 0;
+        padding: 0;
+        background: var(--bg-color);
+        color: var(--text-color);
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .header {
+        padding: 16px;
+        border-bottom: 1px solid var(--border-color);
+        background: var(--bg-color);
+      }
+
+      .site-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 12px;
+      }
+
+      .url-display {
+        font-size: 0.875rem;
+        color: #6b7280;
+        flex-grow: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .view-toggle {
+        display: flex;
+        gap: 8px;
+        padding: 4px;
+        background: var(--secondary-bg);
+        border-radius: 6px;
+      }
+
+      .view-toggle button {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 4px;
+        font-size: 0.875rem;
+        cursor: pointer;
+        background: none;
+        color: #6b7280;
+        flex: 1;
+      }
+
+      .view-toggle button.active {
+        background: white;
+        color: var(--primary-color);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      }
+
+      .notes-container {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 16px;
+      }
+
+      .note-card {
+        background: var(--bg-color);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        margin-bottom: 16px;
+        transition: box-shadow 0.2s;
+      }
+
+      .note-card:hover {
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+
+      .note-header {
+        padding: 12px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .note-title {
+        font-weight: 500;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .note-url {
+        font-size: 0.75rem;
+        color: #6b7280;
+        text-decoration: none;
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .note-url:hover {
+        color: var(--primary-color);
+        text-decoration: underline;
+      }
+
+      .note-actions {
+        display: flex;
+        gap: 8px;
+      }
+
+      .note-action-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #6b7280;
+        padding: 4px;
+        border-radius: 4px;
+        transition: all 0.2s;
+      }
+
+      .note-action-btn:hover {
+        color: var(--primary-color);
+        background: rgba(37, 99, 235, 0.1);
+      }
+
+      .note-action-btn.delete-btn:hover {
+        color: var(--danger-color);
+        background: rgba(220, 38, 38, 0.1);
+      }
+
+      .note-content {
+        padding: 12px;
+      }
+
+      .note-textarea {
+        width: 100%;
+        min-height: 100px;
+        padding: 8px;
+        border: none;
+        resize: vertical;
+        font-family: inherit;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        background: none;
+      }
+
+      .note-textarea:focus {
+        outline: 2px solid var(--primary-color);
+        border-radius: 4px;
+      }
+
+      .note-footer {
+        padding: 8px 12px;
+        border-top: 1px solid var(--border-color);
+        font-size: 0.75rem;
+        color: #6b7280;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
+        z-index: 1000;
+      }
+
+      .modal.active {
+        display: flex;
+      }
+
+      .modal-content {
+        background: white;
+        border-radius: 8px;
+        width: 100%;
+        max-width: 500px;
+        max-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .modal-header {
+        padding: 16px;
+        border-bottom: 1px solid var(--border-color);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .modal-body {
+        padding: 16px;
+        flex-grow: 1;
+        overflow-y: auto;
+      }
+
+      .modal-footer {
+        padding: 16px;
+        border-top: 1px solid var(--border-color);
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+      }
+
+      .btn {
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        cursor: pointer;
+        border: 1px solid transparent;
+        transition: all 0.2s;
+      }
+
+      .btn-primary {
+        background: var(--primary-color);
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: #1d4ed8;
+      }
+
+      .btn-secondary {
+        background: white;
+        border-color: var(--border-color);
+      }
+
+      .btn-secondary:hover {
+        background: var(--secondary-bg);
+      }
+
+      .btn-danger {
+        background: var(--danger-color);
+        color: white;
+      }
+
+      .btn-danger:hover {
+        background: #b91c1c;
+      }
+
+      .search-bar {
+        margin-bottom: 16px;
+        position: relative;
+        display: flex;
+        justify-content: center;
+        width: 100%;
+      }
+
+      .search-bar-wrapper {
+        display: flex;
+        width: 100%;
+        align-items: center;
+        align-content: center;
+        justify-content: center;
+        position: relative;
+      }
+
+      .search-input {
+        width: 85%;
+        padding: 8px 12px 8px 32px;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        font-size: 0.875rem;
+        margin-top: 12px;
+        transition: border-color 0.2s;
+      }
+
+      .search-input:focus {
+        outline: none;
+        border-color: var(--primary-color);
+      }
+
+      .search-icon {
+        position: absolute;
+        left: 10px;
+        top: 28px;
+        transform: translateY(-50%);
+        color: #6b7280;
+      }
+
+      .add-note-btn {
+        position: fixed;
+        bottom: 24px;
+        right: 24px;
+        background: var(--primary-color);
+        color: white;
+        width: 48px;
+        height: 48px;
+        border-radius: 24px;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.2s;
+        z-index: 100;
+      }
+
+      .add-note-btn:hover {
+        transform: scale(1.05);
+      }
+
+      .settings-btn {
+        padding: 8px;
+        background: none;
+        border: none;
+        color: #6b7280;
+        cursor: pointer;
+        border-radius: 4px;
+        transition: all 0.2s;
+      }
+
+      .settings-btn:hover {
+        background: var(--secondary-bg);
+        color: var(--primary-color);
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 48px 16px;
+        color: #6b7280;
+      }
+
+      .empty-state i {
+        font-size: 48px;
+        margin-bottom: 16px;
+        color: #d1d5db;
+      }
+
+      .tags-input {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px;
+        padding: 4px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        margin-bottom: 8px;
+        min-height: 36px;
+      }
+
+      .tag {
+        background: var(--secondary-bg);
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .tag button {
+        border: none;
+        background: none;
+        padding: 0;
+        color: #6b7280;
+        cursor: pointer;
+        transition: color 0.2s;
+      }
+
+      .tag button:hover {
+        color: var(--danger-color);
+      }
+
+      .powered-by {
+        display: flex;
+        width: 100%;
+        justify-content: center;
+        align-items: center;
+        gap: 4px;
+        margin-top: 8px;
+        font-size: 0.75rem;
+        color: #6b7280;
+      }
+
+      .powered-by a {
+        color: var(--primary-color);
+        text-decoration: none;
+      }
+
+      .powered-by a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <div class="site-info">
+        <img id="favicon" class="favicon" src="" alt="" />
+        <div id="currentUrl" class="url-display"></div>
+        <button class="settings-btn" id="settingsBtn" title="Settings">
+          <i class="fas fa-cog"></i>
+        </button>
+      </div>
+      <div class="view-toggle">
+        <button id="pageNotesBtn" class="active">Page Notes</button>
+        <button id="domainNotesBtn">Domain Notes</button>
+        <button id="allNotesBtn">All Notes</button>
+      </div>
+      <div class="powered-by">
+        Powered by:
+        <a href="https://itsvg.in" target="_blank">itsvg.in</a>
+      </div>
+      <div class="search-bar">
+        <div class="search-bar-wrapper">
+          <i class="fas fa-search search-icon"></i>
+          <input
+            type="text"
+            class="search-input"
+            id="searchInput"
+            placeholder="Search notes..."
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="notes-container" id="notesContainer">
+      <!-- Notes will be dynamically inserted here -->
+    </div>
+
+    <button class="add-note-btn" id="addNoteBtn" title="Add new note">
+      <i class="fas fa-plus"></i>
+    </button>
+
+    <!-- New Note Modal -->
+    <div class="modal" id="noteModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Add New Note</h3>
+          <button class="note-action-btn" id="closeModalBtn">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="tags-input" id="tagsInput">
+            <input
+              type="text"
+              placeholder="Add tags (press Enter)"
+              style="border: none; outline: none; flex: 1"
+            />
+          </div>
+          <textarea
+            id="newNoteContent"
+            class="note-textarea"
+            placeholder="Write your note here..."
+          ></textarea>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" id="cancelNoteBtn">Cancel</button>
+          <button class="btn btn-primary" id="saveNoteBtn">Save Note</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Settings</h3>
+          <button class="note-action-btn" id="closeSettingsBtn">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <h4>Data Management</h4>
+          <p>Warning: This action cannot be undone.</p>
+          <button class="btn btn-danger" id="resetDataBtn">
+            Reset All Data
+          </button>
+
+          <h4 style="margin-top: 24px">Export/Import</h4>
+          <button
+            class="btn btn-secondary"
+            id="exportDataBtn"
+            style="margin-right: 8px"
+          >
+            Export Data
+          </button>
+          <button class="btn btn-secondary" id="importDataBtn">
+            Import Data
+          </button>
+          <input
+            type="file"
+            id="importFileInput"
+            style="display: none"
+            accept=".json"
+          />
+        </div>
+      </div>
+    </div>
+
+    <script src="sidepanel.js"></script>
+  </body>
+</html>
