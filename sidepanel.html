@@ -153,7 +153,7 @@
       }
 
       .note-textarea {
-        width: 100%;
+        width: calc(100% - 16px);
         min-height: 100px;
         padding: 8px;
         border: none;
@@ -216,9 +216,8 @@
       }
 
       .modal-body {
+        position: relative;
         padding: 16px;
-        flex-grow: 1;
-        overflow-y: auto;
       }
 
       .modal-footer {
@@ -408,6 +407,18 @@
       .powered-by a:hover {
         text-decoration: underline;
       }
+
+      .github-link {
+        display: flex;
+        width: 100%;
+        justify-content: center;
+        align-items: center;
+        gap: 4px;
+        margin-top: 8px;
+        margin-bottom: 8px;
+        font-size: 0.75rem;
+        color: #6b7280;
+      }
     </style>
   </head>
   <body>
@@ -512,6 +523,12 @@
             style="display: none"
             accept=".json"
           />
+        </div>
+        <div class="github-link">
+          Check out the project on
+          <a href="https://github.com/VishwaGauravIn/site-notes" target="_blank"
+            >GitHub</a
+          >
         </div>
       </div>
     </div>
